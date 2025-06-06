@@ -1,54 +1,60 @@
-# React + TypeScript + Vite
+# Product Management Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Welcome to the Product Management Application! This is a React-based web application designed to manage products, including listing, adding, editing, and deleting products with category filtering and search functionality.
 
-Currently, two official plugins are available:
+## Table of Contents
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Technologies Used](#technologies-used)
+- [API Services](#api-services)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
+- Display a list of products with details (ID, Image, Name, Description, Price, Stock, Category).
+- Search products by name or description.
+- Filter products by category.
+- Add new products.
+- Edit existing products.
+- Delete products with confirmation.
+- Responsive design with horizontal and vertical scrolling for the product table.
+- Loading and error handling states.
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Clone the repository:**
+  
+  git clone https://github.com/your-username/product-management-app.git
+  cd product-management-app
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+2. **Install dependencies:**
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+    ## npm install 
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+3. **Set up environment variables:**
+    .Create a .env file in the root directory.
+    .Add the following variables (replace with your actual API endpoints)
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+4. **Start the development server:**
+
+    ## npm run dev
+
+    The app will be available .
+    
+## Usage
+    .Navigate to the product list page to view all products.
+    .Use the search bar to filter by name or description.
+    .Use the category dropdown to filter by category.
+    .Click "Add Product" to create a new product.
+    .Click "Edit" to modify an existing product.
+    .Click "Delete" to remove a product (with confirmation).
+    .Scroll horizontally and vertically to view all columns and rows in the table.
+
+## Technologies Used
+    .Frontend: React, Material-UI (MUI)
+    .Routing: React Router
+    .API Calls: Fetch or Axios (via custom services)
+    .Styling: CSS-in-JS (MUI sx prop)
+    .Build Tool: Vite or Create React App
