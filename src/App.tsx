@@ -7,6 +7,8 @@ import NotFound from "./components/NotFound";
 import Product from "./pages/Product";
 import ProductField from "./components/Products/ProductField";
 import Contact from "./pages/Contact";
+import CategoryList from "./components/Category/CategoryList";
+import CategoryField from "./components/Category/CategoryField";
 
 function App() {
   return (
@@ -18,7 +20,25 @@ function App() {
             <Route path="/product" element={<Product />} />
             <Route path="/add-product" element={<ProductField />} />
             <Route path="/edit-product/:id" element={<ProductField />} />
+
+             <Route path="/category" element={<CategoryList />} />
+            <Route
+              path="/add-category"
+              element={
+                <CategoryField />
+              }
+            />
+            <Route
+              path="/edit-category/:id"
+              element={
+                <CategoryField />
+              }
+            />
+
+            
             <Route path="/contact" element={<Contact />} />
+
+
 
 
             {/* Add more routes as needed */}

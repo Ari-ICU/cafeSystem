@@ -18,7 +18,6 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-import { Grid } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import Aside from "../Aside";
 import { Footer } from "../../pages/Footer";
@@ -110,22 +109,23 @@ const ProductList: React.FC = () => {
   };
 
   // Filter products based on search query and category
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch =
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredProducts = products
+    .filter((product) => {
+      const matchesSearch =
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const categoryName =
-      product.category_id !== null
-        ? categories.find((cat) => cat.id === product.category_id)?.name || ""
-        : "";
+      const categoryName =
+        product.category_id !== null
+          ? categories.find((cat) => cat.id === product.category_id)?.name || ""
+          : "";
 
-    const matchesCategory =
-      selectedCategory === "All" || categoryName === selectedCategory;
+      const matchesCategory =
+        selectedCategory === "All" || categoryName === selectedCategory;
 
-    return matchesSearch && matchesCategory;
-  })
-  .sort((a, b) => a.name.localeCompare(b.name)); // <-- sort by name (ascending)
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => a.name.localeCompare(b.name)); // Sort by name (ascending)
 
   return (
     <div className="md:flex min-h-screen" id="main-wrapper">
@@ -138,228 +138,226 @@ const ProductList: React.FC = () => {
             </Typography>
           </Box>
           <Box className="flex-grow w-full py-4">
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', p: 6 }}>
-                  <div className="mb-6 flex flex-row justify-between items-start sm:items-center gap-4">
-                    <Typography
-                      variant="h5"
-                      className="font-semibold text-black mb-2 sm:mb-0"
-                    >
-                      Product List
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      onClick={() => navigate("/add-product")}
-                      sx={{
-                        backgroundColor: "#032f5b",
-                        color: "#fff",
-                        "&:hover": {
-                          backgroundColor: "#021f3c",
-                        },
-                      }}
-                    >
-                      Add Product
-                    </Button>
-                  </div>
-                  {error && (
-                    <Alert severity="error" sx={{ mb: 2 }}>
-                      {error}
-                    </Alert>
-                  )}
-                  {loading ? (
-                    <Box display="flex" justifyContent="center" my={4}>
-                      <CircularProgress />
+            <div>
+              <Box sx={{ display: "flex", flexDirection: "column", p: 6 }}>
+                <div className="mb-6 flex flex-row justify-between items-start sm:items-center gap-4">
+                  <Typography
+                    variant="h5"
+                    className="font-semibold text-black mb-2 sm:mb-0"
+                  >
+                    Product List
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    onClick={() => navigate("/add-product")}
+                    sx={{
+                      backgroundColor: "#032f5b",
+                      color: "#fff",
+                      "&:hover": {
+                        backgroundColor: "#021f3c",
+                      },
+                    }}
+                  >
+                    Add Product
+                  </Button>
+                </div>
+                {error && (
+                  <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                  </Alert>
+                )}
+                {loading ? (
+                  <Box display="flex" justifyContent="center" my={4}>
+                    <CircularProgress />
+                  </Box>
+                ) : (
+                  <>
+                    <Box className="mb-6 flex flex-col sm:flex-row gap-4">
+                      <TextField
+                        label="Search by Name or Description"
+                        variant="outlined"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        sx={{ flex: 1 }}
+                        aria-label="Search products"
+                      />
+                      <FormControl sx={{ minWidth: 150 }}>
+                        <InputLabel id="category-select-label">
+                          Category
+                        </InputLabel>
+                        <Select
+                          labelId="category-select-label"
+                          value={selectedCategory}
+                          onChange={(e) => setSelectedCategory(e.target.value)}
+                          label="Category"
+                          aria-label="Filter by category"
+                        >
+                          <MenuItem value="All">All</MenuItem>
+                          {categories.map((category) => (
+                            <MenuItem key={category.id} value={category.name}>
+                              {category.name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
                     </Box>
-                  ) : (
-                    <>
-                      <Box className="mb-6 flex flex-col sm:flex-row gap-4">
-                        <TextField
-                          label="Search by Name or Description"
-                          variant="outlined"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          sx={{ flex: 1 }}
-                          aria-label="Search products"
-                        />
-                        <FormControl sx={{ minWidth: 150 }}>
-                          <InputLabel id="category-select-label">
-                            Category
-                          </InputLabel>
-                          <Select
-                            labelId="category-select-label"
-                            value={selectedCategory}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
-                            label="Category"
-                            aria-label="Filter by category"
-                          >
-                            <MenuItem value="All">All</MenuItem>
-                            {categories.map((category) => (
-                              <MenuItem key={category.id} value={category.name}>
-                                {category.name}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Box>
-                      <Box sx={{ width: "100%", maxWidth: "100%" }}>
-                        <div className="w-full overflow-x-auto">
-                          <TableContainer
-                            component={Paper}
-                            sx={{
-                              "&::-webkit-scrollbar": { height: "8px" },
-                              "&::-webkit-scrollbar-track": {
-                                background: "#f1f1f1",
-                              },
-                              "&::-webkit-scrollbar-thumb": {
-                                background: "#888",
-                                borderRadius: "4px",
-                              },
-                              "&::-webkit-scrollbar-thumb:hover": {
-                                background: "#555",
-                              },
-                            }}
-                          >
-                            <Table stickyHeader aria-label="product table">
-                              <TableHead>
+                    <Box sx={{ width: "100%", maxWidth: "100%" }}>
+                      <div className="w-full overflow-x-auto">
+                        <TableContainer
+                          component={Paper}
+                          sx={{
+                            "&::-webkit-scrollbar": { height: "8px" },
+                            "&::-webkit-scrollbar-track": {
+                              background: "#f1f1f1",
+                            },
+                            "&::-webkit-scrollbar-thumb": {
+                              background: "#888",
+                              borderRadius: "4px",
+                            },
+                            "&::-webkit-scrollbar-thumb:hover": {
+                              background: "#555",
+                            },
+                          }}
+                        >
+                          <Table stickyHeader aria-label="product table">
+                            <TableHead>
+                              <TableRow>
+                                {[
+                                  "ID",
+                                  "Image",
+                                  "Name",
+                                  "Description",
+                                  "Price",
+                                  "Stock",
+                                  "Category",
+                                  "Actions",
+                                ].map((head) => (
+                                  <TableCell
+                                    key={head}
+                                    sx={{
+                                      fontWeight: "bold",
+                                      color: "#cdd7e1",
+                                      backgroundColor: "#032f5b",
+                                      fontSize: "18px",
+                                      minWidth:
+                                        head === "Description" ? 150 : 80,
+                                      whiteSpace: "nowrap",
+                                    }}
+                                  >
+                                    {head}
+                                  </TableCell>
+                                ))}
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {filteredProducts.length === 0 ? (
                                 <TableRow>
-                                  {[
-                                    "ID",
-                                    "Image",
-                                    "Name",
-                                    "Description",
-                                    "Price",
-                                    "Stock",
-                                    "Category",
-                                    "Actions",
-                                  ].map((head) => (
-                                    <TableCell
-                                      key={head}
-                                      sx={{
-                                        fontWeight: "bold",
-                                        color: "#cdd7e1",
-                                        backgroundColor: "#032f5b",
-                                        fontSize: "18px",
-                                        minWidth:
-                                          head === "Description" ? 150 : 80,
-                                        whiteSpace: "nowrap",
-                                      }}
-                                    >
-                                      {head}
-                                    </TableCell>
-                                  ))}
+                                  <TableCell
+                                    colSpan={7}
+                                    sx={{
+                                      textAlign: "center",
+                                      color: "#000",
+                                      fontSize: "18px",
+                                    }}
+                                  >
+                                    No products available
+                                  </TableCell>
                                 </TableRow>
-                              </TableHead>
-                              <TableBody>
-                                {filteredProducts.length === 0 ? (
-                                  <TableRow>
+                              ) : (
+                                filteredProducts.map((product, index) => (
+                                  <TableRow
+                                    key={product.id}
+                                    hover
+                                    sx={{ fontSize: "18px" }}
+                                  >
                                     <TableCell
-                                      colSpan={7}
-                                      sx={{
-                                        textAlign: "center",
-                                        color: "#000",
-                                        fontSize: "18px",
-                                      }}
+                                      sx={{ color: "#000", whiteSpace: "nowrap" }}
                                     >
-                                      No products available
+                                      {index + 1}
+                                    </TableCell>
+                                    <TableCell
+                                      sx={{ color: "#000", whiteSpace: "nowrap" }}
+                                    >
+                                      {product.image ? (
+                                        <img
+                                          src={`${product.image_url}`}
+                                          alt={product.name}
+                                          style={{
+                                            width: "50px",
+                                            height: "50px",
+                                            borderRadius: "4px",
+                                            objectFit: "cover",
+                                          }}
+                                          onError={(e) => {
+                                            e.currentTarget.src =
+                                              "/fallback-image.jpg";
+                                          }}
+                                        />
+                                      ) : (
+                                        "No Image"
+                                      )}
+                                    </TableCell>
+                                    <TableCell
+                                      sx={{ color: "#000", whiteSpace: "nowrap" }}
+                                    >
+                                      {product.name}
+                                    </TableCell>
+                                    <TableCell sx={{ color: "#000" }}>
+                                      {product.description}
+                                    </TableCell>
+                                    <TableCell
+                                      sx={{ color: "#000", whiteSpace: "nowrap" }}
+                                    >
+                                      ${product.price}
+                                    </TableCell>
+                                    <TableCell
+                                      sx={{ color: "#000", whiteSpace: "nowrap" }}
+                                    >
+                                      {product.stock}
+                                    </TableCell>
+                                    <TableCell
+                                      sx={{ color: "#000", whiteSpace: "nowrap" }}
+                                    >
+                                      {categories.length === 0
+                                        ? `No categories loaded (category_id: ${product.category_id})`
+                                        : product.category_id === null
+                                        ? `No category assigned (category_id: null)`
+                                        : categories.find(
+                                            (cat) => cat.id === product.category_id
+                                          )?.name ||
+                                          `Uncategorized (category_id: ${product.category_id})`}
+                                    </TableCell>
+                                    <TableCell
+                                      sx={{ color: "#000", whiteSpace: "nowrap" }}
+                                    >
+                                      <Button
+                                        variant="outlined"
+                                        color="primary"
+                                        onClick={() => handleEdit(product.id)}
+                                        sx={{ mr: 1 }}
+                                      >
+                                        Edit
+                                      </Button>
+                                      <Button
+                                        variant="outlined"
+                                        color="error"
+                                        onClick={() => handleDelete(product.id)}
+                                      >
+                                        Delete
+                                      </Button>
                                     </TableCell>
                                   </TableRow>
-                                ) : (
-                                  filteredProducts.map((product, index) => (
-                                    <TableRow
-                                      key={product.id}
-                                      hover
-                                      sx={{ fontSize: "18px" }}
-                                    >
-                                      <TableCell
-                                        sx={{ color: "#000", whiteSpace: "nowrap" }}
-                                      >
-                                        {index + 1}
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{ color: "#000", whiteSpace: "nowrap" }}
-                                      >
-                                        {product.image ? (
-                                          <img
-                                            src={`${product.image_url}`}
-                                            alt={product.name}
-                                            style={{
-                                              width: "50px",
-                                              height: "50px",
-                                              borderRadius: "4px",
-                                              objectFit: "cover",
-                                            }}
-                                            onError={(e) => {
-                                              e.currentTarget.src =
-                                                "/fallback-image.jpg";
-                                            }}
-                                          />
-                                        ) : (
-                                          "No Image"
-                                        )}
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{ color: "#000", whiteSpace: "nowrap" }}
-                                      >
-                                        {product.name}
-                                      </TableCell>
-                                      <TableCell sx={{ color: "#000" }}>
-                                        {product.description}
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{ color: "#000", whiteSpace: "nowrap" }}
-                                      >
-                                        ${product.price}
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{ color: "#000", whiteSpace: "nowrap" }}
-                                      >
-                                        {product.stock}
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{ color: "#000", whiteSpace: "nowrap" }}
-                                      >
-                                        {categories.length === 0
-                                          ? `No categories loaded (category_id: ${product.category_id})`
-                                          : product.category_id === null
-                                          ? `No category assigned (category_id: null)`
-                                          : categories.find(
-                                              (cat) => cat.id === product.category_id
-                                            )?.name ||
-                                            `Uncategorized (category_id: ${product.category_id})`}
-                                      </TableCell>
-                                      <TableCell
-                                        sx={{ color: "#000", whiteSpace: "nowrap" }}
-                                      >
-                                        <Button
-                                          variant="outlined"
-                                          color="primary"
-                                          onClick={() => handleEdit(product.id)}
-                                          sx={{ mr: 1 }}
-                                        >
-                                          Edit
-                                        </Button>
-                                        <Button
-                                          variant="outlined"
-                                          color="error"
-                                          onClick={() => handleDelete(product.id)}
-                                        >
-                                          Delete
-                                        </Button>
-                                      </TableCell>
-                                    </TableRow>
-                                  ))
-                                )}
-                              </TableBody>
-                            </Table>
-                          </TableContainer>
-                        </div>
-                      </Box>
-                    </>
-                  )}
-                </Box>
-              </Grid>
-            </Grid>
+                                ))
+                              )}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      </div>
+                    </Box>
+                  </>
+                )}
+              </Box>
+            </div>
           </Box>
         </Box>
         <Box className="mt-auto">

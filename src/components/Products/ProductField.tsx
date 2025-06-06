@@ -100,7 +100,7 @@ const ProductField: React.FC = () => {
           });
           setImagePreview(productData.image_url || null);
         }
-      } catch (err) {
+      } catch {
         setError(
           isEditMode
             ? "Failed to load product or categories."

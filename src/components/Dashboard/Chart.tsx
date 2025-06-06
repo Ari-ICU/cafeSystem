@@ -79,8 +79,11 @@ const Charts: React.FC = () => {
               label
               dataKey="value"
             >
-              {pieData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              {pieData.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
               ))}
             </Pie>
             <Tooltip />
@@ -89,9 +92,9 @@ const Charts: React.FC = () => {
         </ResponsiveContainer>
       </div>
       {/* Footer */}
-       <div className="mt-auto">
-                <Footer />
-              </div>
+      <div className="mt-auto">
+        <Footer />
+      </div>
     </div>
   );
 };
