@@ -1,7 +1,7 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-// Import your pages/components
+// Pages/Components
 import Home from "./pages/Home";
 import NotFound from "./components/NotFound";
 import Product from "./pages/Product";
@@ -9,6 +9,8 @@ import ProductField from "./components/Products/ProductField";
 import Contact from "./pages/Contact";
 import CategoryList from "./components/Category/CategoryList";
 import CategoryField from "./components/Category/CategoryField";
+import LoginForm from "./components/Login/LoginForm";
+import PrivateRoute from "./components/Auth/PrivateRoute";
 
 function App() {
   return (
@@ -17,35 +19,63 @@ function App() {
         <div className="flex-grow p-4">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/product" element={<Product />} />
-            <Route path="/add-product" element={<ProductField />} />
-            <Route path="/edit-product/:id" element={<ProductField />} />
+            <Route path="/login" element={<LoginForm />} />
+            <Route path="/contact" element={<Contact />} />
 
-             <Route path="/category" element={<CategoryList />} />
+            {/* Protected Routes */}
+            <Route
+              path="/product"
+              element={
+                <PrivateRoute>
+                  <Product />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/add-product"
+              element={
+                <PrivateRoute>
+                  <ProductField />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/edit-product/:id"
+              element={
+                <PrivateRoute>
+                  <ProductField />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/category"
+              element={
+                <PrivateRoute>
+                  <CategoryList />
+                </PrivateRoute>
+              }
+            />
             <Route
               path="/add-category"
               element={
-                <CategoryField />
+                <PrivateRoute>
+                  <CategoryField />
+                </PrivateRoute>
               }
             />
             <Route
               path="/edit-category/:id"
               element={
-                <CategoryField />
+                <PrivateRoute>
+                  <CategoryField />
+                </PrivateRoute>
               }
             />
 
-            
-            <Route path="/contact" element={<Contact />} />
-
-
-
-
-            {/* Add more routes as needed */}
+            {/* Catch-all */}
             <Route path="/*" element={<NotFound />} />
           </Routes>
         </div>
-       
       </div>
     </Router>
   );
