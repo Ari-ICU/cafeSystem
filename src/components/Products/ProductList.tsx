@@ -18,7 +18,7 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-import { Grid } from "@mui/material";
+import { Grid } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import Aside from "../Aside";
 import { Footer } from "../../pages/Footer";

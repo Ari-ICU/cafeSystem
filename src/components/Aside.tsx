@@ -13,7 +13,6 @@ import {
 import {
   Menu as MenuIcon,
   Home as HomeIcon,
-  Info as InfoIcon,
   ContactMail as ContactIcon,
   MenuOpen as MenuOpen,
   Login as LoginIcon,
