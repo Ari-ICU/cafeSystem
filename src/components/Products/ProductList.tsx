@@ -17,6 +17,8 @@ import {
   FormControl,
   CircularProgress,
   Alert,
+  Card,
+  CardContent,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Aside from "../Aside";
@@ -122,20 +124,20 @@ const ProductList: React.FC = () => {
     .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
-    <Box className="flex min-h-screen flex-col md:flex-row" id="main-wrapper">
+    <div className="md:flex" id="product-wrapper">
       <Aside />
-      <Box className="flex-grow overflow-x-auto min-w-0">
-        <Box className="text-black py-4 px-4 sm:px-6">
+      <div className="w-full page-wrapper overflow-hidden">
+        <Box className="text-black py-4">
           <Typography variant="h4" className="font-bold">
             Product Management
           </Typography>
         </Box>
-        <Box className="w-full py-4 px-4 sm:px-6">
+        <div className="py-4 px-4 sm:px-6">
           <Box sx={{ display: "flex", flexDirection: "column" }}>
-            <Box className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <Box className="mb-6 flex flex-row justify-between items-start sm:items-center gap-4">
               <Typography
                 variant="h5"
-                className="font-semibold text-black mb-2 sm:mb-0"
+                className="font-semibold text-black"
               >
                 Product List
               </Typography>
@@ -146,8 +148,8 @@ const ProductList: React.FC = () => {
                   backgroundColor: "#032f5b",
                   color: "#fff",
                   "&:hover": { backgroundColor: "#021f3c" },
-                  whiteSpace: "nowrap",
                 }}
+                aria-label="Add new product"
               >
                 Add Product
               </Button>
@@ -169,10 +171,10 @@ const ProductList: React.FC = () => {
                     variant="outlined"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    sx={{ flex: 1, minWidth: 200 }}
+                    sx={{ width: { xs: "100%", sm: "300px" } }}
                     aria-label="Search products"
                   />
-                  <FormControl sx={{ minWidth: 150 }}>
+                  <FormControl sx={{ width: { xs: "100%", sm: "150px" } }}>
                     <InputLabel id="category-select-label">Category</InputLabel>
                     <Select
                       labelId="category-select-label"
@@ -191,235 +193,235 @@ const ProductList: React.FC = () => {
                   </FormControl>
                 </Box>
                 <Box sx={{ width: "100%" }}>
-                  <TableContainer
-                    component={Paper}
-                    sx={{
-                      overflowX: "auto", // Enable horizontal scrolling
-                      overflowY: "auto", // Enable vertical scrolling
-                      maxHeight: "70vh", // Limit height for vertical scrolling
-                      // Custom scrollbar styles (optional, browser-dependent)
-                      "&::-webkit-scrollbar": {
-                        width: "8px",
-                        height: "8px",
-                      },
-                      "&::-webkit-scrollbar-track": {
-                        background: "#f1f1f1",
-                      },
-                      "&::-webkit-scrollbar-thumb": {
-                        background: "#888",
-                        borderRadius: "4px",
-                      },
-                      "&::-webkit-scrollbar-thumb:hover": {
-                        background: "#555",
-                      },
-                    }}
-                  >
-                    <Table
+                  {/* Desktop Table */}
+                  <Box sx={{ display: { xs: "none", sm: "block" } }}>
+                    <TableContainer
+                      component={Paper}
                       sx={{
-                        minWidth: 1000, // Ensure table is wide enough to trigger horizontal scrolling
+                        maxHeight: 600,
+                        "&::-webkit-scrollbar": { height: "8px", width: "8px" },
+                        "&::-webkit-scrollbar-thumb": {
+                          background: "#888",
+                          borderRadius: "4px",
+                        },
                       }}
-                      aria-label="product table"
                     >
-                      <TableHead
-                        sx={{
-                          position: "sticky", // Make header sticky
-                          top: 0,
-                          zIndex: 1,
-                          backgroundColor: "#032f5b", // Keep header visible
-                        }}
-                      >
-                        <TableRow>
-                          {[
-                            "ID",
-                            "Image",
-                            "Name",
-                            "Description",
-                            "Price",
-                            "Stock",
-                            "Category",
-                            "Actions",
-                          ].map((head) => (
-                            <TableCell
-                              key={head}
-                              sx={{
-                                fontWeight: "bold",
-                                color: "#cdd7e1",
-                                backgroundColor: "#032f5b",
-                                fontSize: { xs: "14px", sm: "16px" },
-                                minWidth:
-                                  head === "Description"
-                                    ? 200
-                                    : head === "Actions"
-                                    ? 180
-                                    : head === "Image"
-                                    ? 80
-                                    : 100,
-                                whiteSpace: "nowrap",
-                                padding: { xs: "8px", sm: "16px" },
-                              }}
-                            >
-                              {head}
-                            </TableCell>
-                          ))}
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {filteredProducts.length === 0 ? (
+                      <Table stickyHeader aria-label="product table">
+                        <TableHead>
                           <TableRow>
-                            <TableCell
-                              colSpan={8}
-                              sx={{
-                                textAlign: "center",
-                                color: "#000",
-                                fontSize: { xs: "14px", sm: "16px" },
-                                padding: "16px",
-                              }}
-                            >
-                              No products available
-                            </TableCell>
+                            {[
+                              "ID",
+                              "Image",
+                              "Name",
+                              "Description",
+                              "Price",
+                              "Stock",
+                              "Category",
+                              "Actions",
+                            ].map((head) => (
+                              <TableCell
+                                key={head}
+                                sx={{
+                                  backgroundColor: "#032f5b",
+                                  color: "#fff",
+                                  fontWeight: "bold",
+                                  minWidth:
+                                    head === "Description"
+                                      ? 200
+                                      : head === "Actions"
+                                      ? 160
+                                      : head === "Image"
+                                      ? 80
+                                      : 100,
+                                  position: head === "Actions" ? "sticky" : "static",
+                                  right: head === "Actions" ? 0 : undefined,
+                                  zIndex: head === "Actions" ? 2 : 1,
+                                }}
+                              >
+                                {head}
+                              </TableCell>
+                            ))}
                           </TableRow>
-                        ) : (
-                          filteredProducts.map((product, index) => (
-                            <TableRow
-                              key={product.id}
-                              hover
-                              sx={{ fontSize: { xs: "14px", sm: "16px" } }}
-                            >
-                              <TableCell
-                                sx={{
-                                  color: "#000",
-                                  whiteSpace: "nowrap",
-                                  padding: { xs: "8px", sm: "16px" },
-                                }}
-                              >
-                                {index + 1}
-                              </TableCell>
-                              <TableCell
-                                sx={{
-                                  color: "#000",
-                                  whiteSpace: "nowrap",
-                                  padding: { xs: "8px", sm: "16px" },
-                                }}
-                              >
-                                {product.image ? (
-                                  <img
-                                    src={`${product.image_url}`}
-                                    alt={product.name}
-                                    style={{
-                                      width: "50px",
-                                      height: "50px",
-                                      borderRadius: "4px",
-                                      objectFit: "cover",
-                                    }}
-                                    onError={(e) => {
-                                      e.currentTarget.src =
-                                        "/fallback-image.jpg";
-                                    }}
-                                  />
-                                ) : (
-                                  "No Image"
-                                )}
-                              </TableCell>
-                              <TableCell
-                                sx={{
-                                  color: "#000",
-                                  whiteSpace: "nowrap",
-                                  padding: { xs: "8px", sm: "16px" },
-                                }}
-                              >
-                                {product.name}
-                              </TableCell>
-                              <TableCell
-                                sx={{
-                                  color: "#000",
-                                  maxWidth: 200,
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  padding: { xs: "8px", sm: "16px" },
-                                }}
-                              >
-                                {product.description}
-                              </TableCell>
-                              <TableCell
-                                sx={{
-                                  color: "#000",
-                                  whiteSpace: "nowrap",
-                                  padding: { xs: "8px", sm: "16px" },
-                                }}
-                              >
-                                ${product.price}
-                              </TableCell>
-                              <TableCell
-                                sx={{
-                                  color: "#000",
-                                  whiteSpace: "nowrap",
-                                  padding: { xs: "8px", sm: "16px" },
-                                }}
-                              >
-                                {product.stock}
-                              </TableCell>
-                              <TableCell
-                                sx={{
-                                  color: "#000",
-                                  whiteSpace: "nowrap",
-                                  padding: { xs: "8px", sm: "16px" },
-                                }}
-                              >
-                                {categories.length === 0
-                                  ? `No categories loaded (category_id: ${product.category_id})`
-                                  : product.category_id === null
-                                  ? `No category assigned`
-                                  : categories.find(
-                                      (cat) => cat.id === product.category_id
-                                    )?.name || `Uncategorized`}
-                              </TableCell>
-                              <TableCell
-                                sx={{
-                                  color: "#000",
-                                  whiteSpace: "nowrap",
-                                  padding: { xs: "8px", sm: "16px" },
-                                }}
-                              >
-                                <Button
-                                  variant="outlined"
-                                  color="primary"
-                                  onClick={() => handleEdit(product.id)}
-                                  sx={{
-                                    mr: 1,
-                                    minWidth: { xs: 60, sm: 80 },
-                                    fontSize: { xs: "12px", sm: "14px" },
-                                  }}
-                                >
-                                  Edit
-                                </Button>
-                                <Button
-                                  variant="outlined"
-                                  color="error"
-                                  onClick={() => handleDelete(product.id)}
-                                  sx={{
-                                    minWidth: { xs: 60, sm: 80 },
-                                    fontSize: { xs: "12px", sm: "14px" },
-                                  }}
-                                >
-                                  Delete
-                                </Button>
+                        </TableHead>
+                        <TableBody>
+                          {filteredProducts.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={8} align="center">
+                                <Card sx={{ maxWidth: 400, mx: "auto", my: 2 }}>
+                                  <CardContent>
+                                    <Typography>No products found.</Typography>
+                                  </CardContent>
+                                </Card>
                               </TableCell>
                             </TableRow>
-                          ))
-                        )}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+                          ) : (
+                            filteredProducts.map((product, index) => (
+                              <TableRow key={product.id} hover>
+                                <TableCell>{index + 1}</TableCell>
+                                <TableCell>
+                                  {product.image ? (
+                                    <img
+                                      src={`${product.image_url}`}
+                                      alt={product.name}
+                                      style={{
+                                        width: "50px",
+                                        height: "50px",
+                                        borderRadius: "4px",
+                                        objectFit: "cover",
+                                      }}
+                                      onError={(e) => {
+                                        e.currentTarget.src =
+                                          "/fallback-image.jpg";
+                                      }}
+                                    />
+                                  ) : (
+                                    "No Image"
+                                  )}
+                                </TableCell>
+                                <TableCell>{product.name}</TableCell>
+                                <TableCell
+                                  sx={{
+                                    maxWidth: 200,
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                  }}
+                                >
+                                  {product.description}
+                                </TableCell>
+                                <TableCell>${product.price}</TableCell>
+                                <TableCell>{product.stock}</TableCell>
+                                <TableCell>
+                                  {categories.length === 0
+                                    ? `No categories loaded (category_id: ${product.category_id})`
+                                    : product.category_id === null
+                                    ? `No category assigned`
+                                    : categories.find(
+                                        (cat) => cat.id === product.category_id
+                                      )?.name || `Uncategorized`}
+                                </TableCell>
+                                <TableCell
+                                  sx={{
+                                    position: "sticky",
+                                    right: 0,
+                                    background: "#fff",
+                                    zIndex: 1,
+                                  }}
+                                >
+                                  <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    size="small"
+                                    onClick={() => handleEdit(product.id)}
+                                    sx={{ mr: 1 }}
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    variant="outlined"
+                                    color="error"
+                                    size="small"
+                                    onClick={() => handleDelete(product.id)}
+                                  >
+                                    Delete
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))
+                          )}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Box>
+
+                  {/* Mobile Card View */}
+                  <Box sx={{ display: { xs: "block", sm: "none" } }}>
+                    {filteredProducts.length === 0 ? (
+                      <Card sx={{ maxWidth: 400, mx: "auto", mt: 2 }}>
+                        <CardContent>
+                          <Typography>No products found.</Typography>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      filteredProducts.map((product) => (
+                        <Card
+                          key={product.id}
+                          sx={{ mb: 2, border: "1px solid #e0e0e0" }}
+                        >
+                          <CardContent className=" ">
+                            <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                              {product.image ? (
+                                <img
+                                  src={`${product.image_url}`}
+                                  alt={product.name}
+                                  className="w-full"
+                                  style={{
+                                    height: "200px",
+                                    borderRadius: "4px",
+                                    objectFit: "cover",
+                                    marginRight: "8px",
+                                  }}
+                                  onError={(e) => {
+                                    e.currentTarget.src = "/fallback-image.jpg";
+                                  }}
+                                />
+                              ) : (
+                                <Typography sx={{ mr: 1 }}>No Image</Typography>
+                              )}
+                             
+                            </Box>
+                             <Typography variant="h5">{product.name}</Typography>
+                            <Typography variant="body1" color="text.secondary">
+                              {product.description}
+                            </Typography>
+                            <Typography variant="body1" sx={{ mt: 1 }}>
+                              Price: ${product.price}
+                            </Typography>
+                            <Typography variant="body1">
+                              Stock: {product.stock}
+                            </Typography>
+                            <Typography variant="body1">
+                              Category:{" "}
+                              {categories.length === 0
+                                ? `No categories loaded (category_id: ${product.category_id})`
+                                : product.category_id === null
+                                ? `No category assigned`
+                                : categories.find(
+                                    (cat) => cat.id === product.category_id
+                                  )?.name || `Uncategorized`}
+                            </Typography>
+                            <Box sx={{ mt: 1, display: "flex", gap: 1 }}>
+                              <Button
+                                variant="outlined"
+                                color="primary"
+                                size="small"
+                                onClick={() => handleEdit(product.id)}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="outlined"
+                                color="error"
+                                size="small"
+                                onClick={() => handleDelete(product.id)}
+                              >
+                                Delete
+                              </Button>
+                            </Box>
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
+                  </Box>
                 </Box>
               </>
             )}
           </Box>
-        </Box>
-        <Box className="mt-auto">
+        </div>
+        <Box className="">
           <Footer />
         </Box>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 

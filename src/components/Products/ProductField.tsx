@@ -229,9 +229,9 @@ const ProductField: React.FC = () => {
   };
 
   return (
-    <div className="md:flex min-h-screen" id="main-wrapper">
+    <div className="md:flex " id="main-wrapper">
       <Aside />
-      <Box className="flex flex-col flex-grow w-full p-6">
+      <div className="flex flex-col flex-grow w-full ">
         <Box display="flex" justifyContent="space-between" py={2}>
           <Button
             variant="outlined"
@@ -271,7 +271,7 @@ const ProductField: React.FC = () => {
             <CircularProgress />
           </Box>
         ) : (
-          <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
+          <div className="py-4">
             <Typography
               variant="h4"
               gutterBottom
@@ -451,11 +451,11 @@ const ProductField: React.FC = () => {
                 </div>
               </Box>
             </form>
-          </Paper>
+          </div>
         )}
 
         <Footer />
-      </Box>
+      </div>
     </div>
   );
 };

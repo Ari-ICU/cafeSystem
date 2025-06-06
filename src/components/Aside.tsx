@@ -106,7 +106,7 @@ const Sidebar: React.FC = () => {
   );
 
   return (
-    <Box className="flex" style={{ padding: "10px" }}>
+    <Box className="flex" >
       {/* Mobile: Show toggle button and temporary drawer */}
       <div className="md:hidden flex items-center justify-between w-full">
         <Typography variant="h6" className="font-bold">

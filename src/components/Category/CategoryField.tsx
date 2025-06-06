@@ -106,9 +106,9 @@ const CategoryField: React.FC = () => {
   };
 
   return (
-    <div className="md:flex min-h-screen bg-gray-100" id="category-wrapper">
+    <div className="md:flex " id="category-wrapper">
       <Aside />
-      <Box className="flex flex-col flex-grow w-full p-6">
+      <div className="flex-grow w-full">
         <Box display="flex" justifyContent="space-between" py={2}>
           <Button
             variant="outlined"
@@ -148,7 +148,7 @@ const CategoryField: React.FC = () => {
             <CircularProgress />
           </Box>
         ) : (
-          <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
+          <div className="py-4 ">
             <Typography
               variant="h4"
               gutterBottom
@@ -174,11 +174,11 @@ const CategoryField: React.FC = () => {
                 />
               </Box>
             </form>
-          </Paper>
+          </div>
         )}
 
         <Footer />
-      </Box>
+      </div>
     </div>
   );
 };

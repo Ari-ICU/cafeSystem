@@ -86,15 +86,15 @@ const CategoryList: React.FC = () => {
   return (
     <div className="md:flex " id="category-wrapper">
       <Aside />
-      <Box className="w-full page-wrapper overflow-hidden">
+      <div className="w-full page-wrapper overflow-hidden">
         <Box className="text-black py-4">
           <Typography variant="h4" className="font-bold">
             Category Management
           </Typography>
         </Box>
 
-        <Box className="flex-grow w-full py-4">
-          <div>
+       
+          <div className=" py-4 px-4 sm:px-6">
             <Box sx={{ display: "flex", flexDirection: "column" }}>
               <Box className="mb-6 flex flex-row justify-between items-start sm:items-center gap-4">
                 <Typography variant="h5" className="font-semibold text-black">
@@ -284,11 +284,11 @@ const CategoryList: React.FC = () => {
             </Box>
           </div>
 
-          <Box className="mt-auto">
+          <Box className="">
             <Footer />
           </Box>
-        </Box>
-      </Box>
+        
+      </div>
     </div>
   );
 };
