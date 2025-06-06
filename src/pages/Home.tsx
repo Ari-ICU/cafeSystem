@@ -3,7 +3,7 @@ import Aside from "../components/Aside";
 
 const Home = () => {
   return (
-    <div id="main-wrapper" className=" flex">
+    <div id="main-wrapper" className=" md:flex">
       <Aside />
       <div className=" w-full page-wrapper overflow-hidden">
         <div className="container-fluid">
