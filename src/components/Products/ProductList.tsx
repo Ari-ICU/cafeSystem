@@ -10,7 +10,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Grid,
   TextField,
   MenuItem,
   Select,
@@ -19,6 +18,7 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import { useNavigate } from "react-router-dom";
 import Aside from "../Aside";
 import { Footer } from "../../pages/Footer";
@@ -43,8 +43,6 @@ interface Category {
   name: string;
 }
 
-
-
 const ProductList: React.FC = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
@@ -58,18 +56,29 @@ const ProductList: React.FC = () => {
     const fetchProductsAndCategories = async () => {
       try {
         setLoading(true);
-        const [productRes, categoryRes] = await Promise.all([
+        const [productRes, categoryRes] = (await Promise.all([
           getProducts(),
           getCategories(),
-        ]);
-        const formattedProducts = productRes.data.map((product: any) => ({
-          ...product,
-          category_id: product.category_id ? Number(product.category_id) : null,
-        }));
-        console.log("Products:", formattedProducts);
-        console.log("Categories:", categoryRes.data);
-        setProducts(formattedProducts);
-        setCategories(categoryRes.data);
+        ])) as [{ data: Product[] }, { data: Category[] }];
+
+        // Type guard for productRes
+        if (
+          typeof productRes === "object" &&
+          productRes !== null &&
+          "data" in productRes &&
+          Array.isArray(productRes.data)
+        ) {
+          const formattedProducts = productRes.data.map((product) => ({
+            ...product,
+            category_id: product.category_id ? Number(product.category_id) : null,
+          }));
+          console.log("Products:", formattedProducts);
+          console.log("Categories:", categoryRes.data);
+          setProducts(formattedProducts);
+          setCategories(categoryRes.data);
+        } else {
+          throw new Error("Invalid product response format");
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
         setError("Failed to load products or categories. Please try again.");
@@ -128,9 +137,9 @@ const ProductList: React.FC = () => {
             </Typography>
           </Box>
           <Box className="flex-grow w-full py-4">
-            <Grid spacing={2}>
-              <Grid item xs={12} className="flex flex-col">
-                <Box className="p-6">
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', p: 6 }}>
                   <div className="mb-6 flex flex-row justify-between items-start sm:items-center gap-4">
                     <Typography
                       variant="h5"
@@ -281,7 +290,7 @@ const ProductList: React.FC = () => {
                                             }}
                                             onError={(e) => {
                                               e.currentTarget.src =
-                                                "/fallback-image.jpg"; // Fallback image if the URL fails
+                                                "/fallback-image.jpg";
                                             }}
                                           />
                                         ) : (

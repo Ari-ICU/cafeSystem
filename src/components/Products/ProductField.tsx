@@ -45,8 +45,6 @@ const ProductField: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const isEditMode = !!id;
 
-  const IMAGE_BASE_URL = "http://127.0.0.1:8000/storage/uploads/";
-
   const [product, setProduct] = useState<Product>({
     name: "",
     description: "",
@@ -68,12 +66,23 @@ const ProductField: React.FC = () => {
       try {
         setLoading(true);
         const categoryRes = await getCategories();
-        setCategories(categoryRes.data);
+        setCategories((categoryRes as { data: Category[] }).data);
 
         if (isEditMode) {
           const productRes = await getProducts();
-          const productData = productRes.data.find(
-            (p: any) => p.id === Number(id)
+          interface ProductData {
+            id: number;
+            name: string;
+            description: string;
+            price: number;
+            stock: number;
+            is_available: boolean;
+            category_id: number | null;
+            image_url?: string;
+          }
+          const typedProductRes = productRes as { data: ProductData[] };
+          const productData = typedProductRes.data.find(
+            (p: ProductData) => p.id === Number(id)
           );
           if (!productData) throw new Error("Product not found");
 
@@ -106,9 +115,16 @@ const ProductField: React.FC = () => {
   }, [id, isEditMode]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | any>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
-    const { name, value, files } = e.target;
+    const target = e.target as
+      | HTMLInputElement
+      | HTMLTextAreaElement
+      | HTMLSelectElement;
+    const { name, value } = target;
+    const files = (target as HTMLInputElement).files;
 
     if (name === "image" && files && files[0]) {
       const file = files[0];
@@ -165,6 +181,8 @@ const ProductField: React.FC = () => {
       payload.append("image", product.image);
     } else if (isEditMode && product.image_url && !imagePreview) {
       payload.append("image", ""); // clear image if deleted
+    }else{
+      payload.append("image_deleted", "1");
     }
 
     try {
@@ -187,11 +205,26 @@ const ProductField: React.FC = () => {
         setImagePreview(null);
       }
       setTimeout(() => navigate("/product"), 2000);
-    } catch (error: any) {
-      setError(
-        error.response?.data ||
-          (isEditMode ? "Failed to update product." : "Failed to add product.")
-      );
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "response" in error &&
+        error.response &&
+        typeof error.response === "object" &&
+        "data" in error.response
+      ) {
+        setError(
+          (error as { response: { data: string } }).response.data ||
+            (isEditMode
+              ? "Failed to update product."
+              : "Failed to add product.")
+        );
+      } else {
+        setError(
+          isEditMode ? "Failed to update product." : "Failed to add product."
+        );
+      }
     }
   };
 
@@ -312,6 +345,7 @@ const ProductField: React.FC = () => {
                         />
                         <button
                           type="button"
+                          title="Delete image"
                           onClick={() => {
                             setImagePreview(null);
                             setProduct((prev) => ({
@@ -394,7 +428,16 @@ const ProductField: React.FC = () => {
                         name="category_id"
                         value={product.category_id || ""}
                         label="Category"
-                        onChange={handleChange}
+                        onChange={(event) => {
+                          const value =
+                            String(event.target.value) === ""
+                              ? null
+                              : Number(event.target.value);
+                          setProduct((prev) => ({
+                            ...prev,
+                            category_id: value,
+                          }));
+                        }}
                         required
                       >
                         {categories.map((cat) => (
