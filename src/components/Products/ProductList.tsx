@@ -18,7 +18,7 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-import Grid from "@mui/material/Grid";
+import { Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Aside from "../Aside";
 import { Footer } from "../../pages/Footer";
@@ -124,7 +124,8 @@ const ProductList: React.FC = () => {
       selectedCategory === "All" || categoryName === selectedCategory;
 
     return matchesSearch && matchesCategory;
-  });
+  })
+  .sort((a, b) => a.name.localeCompare(b.name)); // <-- sort by name (ascending)
 
   return (
     <div className="md:flex min-h-screen" id="main-wrapper">
