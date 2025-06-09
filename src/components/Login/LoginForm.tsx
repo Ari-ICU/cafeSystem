@@ -19,7 +19,6 @@ const LoginForm: React.FC = () => {
   const [password, setPassword] = useState("");
   const [captchaImage, setCaptchaImage] = useState<string | null>(null); // CAPTCHA image
   const [captchaInput, setCaptchaInput] = useState(""); // User-entered CAPTCHA
-  const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
@@ -30,15 +29,16 @@ const LoginForm: React.FC = () => {
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
 
   // LoginForm.tsx
-const fetchCaptcha = async () => {
-  try {
-    const captcha = await LoginService.getCaptcha();
-    setCaptchaImage(captcha);
-  } catch (error: any) {
-    console.error("Failed to fetch CAPTCHA:", error);
-    setError(error.message || "Failed to load CAPTCHA.");
-  }
-};
+  const fetchCaptcha = async () => {
+    try {
+      const captcha = await LoginService.getCaptcha();
+      setCaptchaImage(captcha);
+    } catch (error: any) {
+      console.error("Failed to fetch CAPTCHA:", error);
+      setGeneralError(error.message || "Failed to load CAPTCHA.");
+      // Optionally handle the error, e.g., setGeneralError(error.message || "Failed to load CAPTCHA.");
+    }
+  };
 
   useEffect(() => {
     fetchCaptcha();

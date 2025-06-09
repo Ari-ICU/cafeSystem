@@ -108,7 +108,8 @@ const CategoriesService = {
           },
         }
       );
-      return response.data.data || response.data;
+      const data = response.data as any;
+      return data.data || data;
     } catch (error: any) {
       console.error("Error deleting category:", error);
       throw new Error(

@@ -36,17 +36,6 @@ interface Product {
   image_url?: string;
 }
 
-interface ProductData {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  stock: number;
-  is_available: boolean;
-  category_id: number | null;
-  image_url?: string;
-}
-
 const ProductField: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();

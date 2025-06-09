@@ -12,10 +12,7 @@ import Aside from "../Aside";
 import Footer from "../../pages/Footer"; // Adjust path as needed
 import CategoriesService from "../../Services/CategoriesService";
 
-interface Category {
-  id: number;
-  name: string;
-}
+
 
 const CategoryField: React.FC = () => {
   const navigate = useNavigate();

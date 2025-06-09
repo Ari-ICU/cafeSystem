@@ -47,7 +47,7 @@ const ProductService = {
         },
         withCredentials: true,
       });
-      const data = response.data;
+      const data = response.data as any;
       return { data: data.data || data };
     } catch (error: any) {
       console.error(`Error fetching product ${productId}:`, error);
@@ -70,7 +70,7 @@ const ProductService = {
         },
         withCredentials: true,
       });
-      const data = response.data;
+      const data = response.data as any;
       return { data: data.data || data };
     } catch (error: any) {
       console.error("Error adding product:", error);
@@ -93,7 +93,7 @@ const ProductService = {
           withCredentials: true,
         }
       );
-      const data = response.data;
+      const data = response.data as any;
       return { data: data.data || data };
     } catch (error: any) {
       console.error("Error updating product:", error);
@@ -115,7 +115,7 @@ const ProductService = {
           withCredentials: true,
         }
       );
-      const data = response.data;
+      const data = response.data as any;
       return { data: data.data || data };
     } catch (error: any) {
       console.error("Error deleting product:", error);
