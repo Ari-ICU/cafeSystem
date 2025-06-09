@@ -1,7 +1,6 @@
 import axios from "axios";
 import ApiConfig from "../Configs/ApiConfig";
 
-// Axios interceptor to include Authorization header
 axios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("auth_token");
@@ -30,9 +29,10 @@ const CategoriesService = {
     } catch (error: any) {
       console.error("Error fetching categories:", error);
       throw new Error(
-        error.response?.data?.message || "Failed to load categories."
+        error.response?.data?.message || "Category endpoint not found. Please check the API URL."
       );
     }
+    
   },
   // GET /categories/:id
   getCategory: async (categoryId: number) => {
@@ -48,9 +48,9 @@ const CategoriesService = {
       const data = response.data as any;
       return data.data || data;
     } catch (error: any) {
-      console.error("Error fetching category:", error);
+      console.error("Error fetching categories:", error);
       throw new Error(
-        error.response?.data?.message || "Failed to load category."
+        error.response?.data?.message || "Category endpoint not found. Please check the API URL."
       );
     }
   },

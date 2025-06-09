@@ -9,7 +9,7 @@ import {
   Alert,
 } from "@mui/material";
 import Aside from "../Aside"; 
-import Footer from "../../pages/Footer"; // Adjust path as needed
+import Footer from "../../pages/Footer"; 
 import CategoriesService from "../../Services/CategoriesService";
 
 

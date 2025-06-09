@@ -52,7 +52,6 @@ const CategoryList: React.FC = () => {
       }
     } catch (err) {
       console.error("Error fetching categories:", err);
-      setError("Failed to load categories.");
     } finally {
       setLoading(false);
     }
@@ -104,7 +103,6 @@ const CategoryList: React.FC = () => {
       <Box
         sx={{
           flexGrow: 1,
-          p: 3,
           bgcolor: "#fafafa",
           display: "flex",
           flexDirection: "column",
@@ -113,12 +111,14 @@ const CategoryList: React.FC = () => {
         <Typography
           variant="h4"
           component="h1"
-          sx={{ mb: 3, fontWeight: "bold", color: "#032f5b" }}
+          sx={{ mb: 3, p: 2, fontWeight: "bold", color: "#032f5b" }}
         >
           Category Management
         </Typography>
 
-        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+        <Box
+          sx={{ display: "flex", px: 4, justifyContent: "space-between", mb: 3 }}
+        >
           <Typography variant="h5" sx={{ fontWeight: "600", color: "#032f5b" }}>
             Category List
           </Typography>
@@ -142,110 +142,123 @@ const CategoryList: React.FC = () => {
           </Alert>
         )}
 
-        <TextField
-          label="Search by Name"
-          variant="outlined"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          sx={{ mb: 3, maxWidth: 320 }}
-          aria-label="Search categories"
-          disabled={loading}
-        />
+        <div className="px-8">
+          
+          <TextField
+            label="Search by Name"
+            variant="outlined"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{ mb: 3, maxWidth: 320 }}
+            aria-label="Search categories"
+            disabled={loading}
+          />
+        </div>
 
         {loading ? (
           <Box sx={{ display: "flex", justifyContent: "center", my: 5 }}>
             <CircularProgress />
           </Box>
-        ) : filteredCategories.length === 0 ? (
-          <Card sx={{ maxWidth: 400, mx: "auto", p: 2, mt: 5 }}>
-            <CardContent>
-              <Typography align="center">No categories found.</Typography>
-            </CardContent>
-          </Card>
         ) : (
-          <TableContainer sx={{ maxHeight: 600 }}>
-            <Table stickyHeader aria-label="category table">
-              <TableHead>
-                <TableRow sx={{ bgcolor: "#032f5b" }}>
-                 <TableCell
-                    sx={{
-                      color: "#fff",
-                      fontWeight: "bold",
-                      minWidth: 160,
-                      position: "sticky",
-                      right: 0,
-                      bgcolor: "#032f5b",
-                      zIndex: 2,
-                    }}
-                  >
-                    #
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "#fff",
-                      fontWeight: "bold",
-                      minWidth: 160,
-                      position: "sticky",
-                      right: 0,
-                      bgcolor: "#032f5b",
-                      zIndex: 2,
-                    }}
-                  >
-                    Name
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      color: "#fff",
-                      fontWeight: "bold",
-                      minWidth: 160,
-                      position: "sticky",
-                      right: 0,
-                      bgcolor: "#032f5b",
-                      zIndex: 2,
-                    }}
-                  >
-                    Actions
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredCategories.map((category, index) => (
-                  <TableRow key={category.id} hover>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{category.name}</TableCell>
+          <>
+            <TableContainer sx={{ maxHeight: 600, px: 4}}>
+              <Table stickyHeader aria-label="category table">
+                <TableHead>
+                  <TableRow sx={{ bgcolor: "#032f5b" }}>
                     <TableCell
                       sx={{
+                        color: "#fff",
+                        fontWeight: "bold",
+                        minWidth: 160,
                         position: "sticky",
                         right: 0,
-                        bgcolor: "#fff",
-                        zIndex: 1,
+                        bgcolor: "#032f5b",
+                        zIndex: 2,
                       }}
                     >
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        color="primary"
-                        sx={{ mr: 1 }}
-                        onClick={() => handleEdit(category.id)}
-                        aria-label={`Edit category ${category.name}`}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        color="error"
-                        onClick={() => handleDelete(category.id)}
-                        aria-label={`Delete category ${category.name}`}
-                      >
-                        Delete
-                      </Button>
+                      #
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "#fff",
+                        fontWeight: "bold",
+                        minWidth: 160,
+                        position: "sticky",
+                        right: 0,
+                        bgcolor: "#032f5b",
+                        zIndex: 2,
+                      }}
+                    >
+                      Name
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        color: "#fff",
+                        fontWeight: "bold",
+                        minWidth: 160,
+                        position: "sticky",
+                        right: 0,
+                        bgcolor: "#032f5b",
+                        zIndex: 2,
+                      }}
+                    >
+                      Actions
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {filteredCategories.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={3}>
+                        <Card sx={{ maxWidth: 400, mx: "auto", p: 2 }}>
+                          <CardContent>
+                            <Typography align="center">
+                              No categories found.
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredCategories.map((category, index) => (
+                      <TableRow key={category.id} hover>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{category.name}</TableCell>
+                        <TableCell
+                          sx={{
+                            position: "sticky",
+                            right: 0,
+                            bgcolor: "#fff",
+                            zIndex: 1,
+                          }}
+                        >
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            color="primary"
+                            sx={{ mr: 1 }}
+                            onClick={() => handleEdit(category.id)}
+                            aria-label={`Edit category ${category.name}`}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            color="error"
+                            onClick={() => handleDelete(category.id)}
+                            aria-label={`Delete category ${category.name}`}
+                          >
+                            Delete
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>
         )}
 
         <Footer />
