@@ -6,7 +6,6 @@ import Home from "./pages/Home";
 import NotFound from "./components/NotFound";
 import Product from "./pages/Product";
 import ProductField from "./components/Products/ProductField";
-import Contact from "./pages/Contact";
 import CategoryList from "./components/Category/CategoryList";
 import CategoryField from "./components/Category/CategoryField";
 import LoginForm from "./components/Login/LoginForm";
