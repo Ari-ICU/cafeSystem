@@ -10,11 +10,7 @@ import {
 } from "@mui/material";
 import Aside from "../Aside"; // Adjust path as needed
 import Footer from "../../pages/Footer"; // Adjust path as needed
-import {
-  getCategories,
-  addCategory,
-  updateCategory,
-} from "../../Services/CategoriesService"; // Adjust path as needed
+import CategoriesService from "../../Services/CategoriesService";
 
 interface Category {
   id: number;
@@ -36,18 +32,14 @@ const CategoryField: React.FC = () => {
       const fetchCategory = async () => {
         try {
           setLoading(true);
-          const response = await getCategories();
+          const response = await CategoriesService.getCategory(Number(id));
+
           if (
+            response &&
             typeof response === "object" &&
-            response !== null &&
-            "data" in response &&
-            Array.isArray((response as { data: Category[] }).data)
+            typeof response.name === "string"
           ) {
-            const categoryData = (response as { data: Category[] }).data.find(
-              (cat) => cat.id === Number(id)
-            );
-            if (!categoryData) throw new Error("Category not found");
-            setCategory({ name: categoryData.name });
+            setCategory({ name: response.name });
           } else {
             throw new Error("Invalid response format");
           }
@@ -82,12 +74,12 @@ const CategoryField: React.FC = () => {
       if (isEditMode) {
         const formData = new FormData();
         formData.append("name", category.name.trim());
-        await updateCategory(Number(id), formData);
+        await CategoriesService.updateCategory(Number(id), formData);
         setSuccess("Category updated successfully");
       } else {
         const formData = new FormData();
         formData.append("name", category.name.trim());
-        await addCategory(formData);
+        await CategoriesService.addCategory(formData);
         setSuccess("Category created successfully");
         setCategory({ name: "" });
       }
@@ -107,8 +99,9 @@ const CategoryField: React.FC = () => {
   return (
     <div className="md:flex " id="category-wrapper">
       <Aside />
-      <div className="flex-grow w-full">
-        <Box display="flex" justifyContent="space-between" py={2}>
+      <div className="flex-grow w-full ">
+        <div className="flex justify-between p-4">
+          
           <Button
             variant="outlined"
             color="inherit"
@@ -129,7 +122,7 @@ const CategoryField: React.FC = () => {
           >
             {isEditMode ? "Update Category" : "Save Category"}
           </Button>
-        </Box>
+        </div>
 
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -151,12 +144,13 @@ const CategoryField: React.FC = () => {
             <Typography
               variant="h4"
               gutterBottom
+              px={2}
               sx={{ fontWeight: "bold", color: "#032f5b" }}
             >
               {isEditMode ? "Edit Category" : "Add New Category"}
             </Typography>
             <form onSubmit={handleSubmit} id="category-form">
-              <Box mb={4}>
+              <Box mb={4} px={2}>
                 <TextField
                   fullWidth
                   label="Category Name"

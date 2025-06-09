@@ -1,31 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import LoginService from "../../Services/LoginService";
 
 const PrivateRoute = ({ children }: { children: React.ReactElement }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const verifyAuth = async () => {
       try {
-        console.log("🔍 Checking authentication via /api/check-auth...");
-        const res = await fetch("/api/check-auth", {
-          credentials: "include", 
-        });
-
-        if (res.ok) {
-          console.log("✅ Authenticated");
-          setIsAuthenticated(true);
-        } else {
-          console.warn("🚫 Not authenticated. Status:", res.status);
-          setIsAuthenticated(false);
-        }
-      } catch (error) {
+        console.log("🔍 Checking authentication...");
+        const isAuth = await LoginService.isAuthenticated();
+        setIsAuthenticated(isAuth);
+        console.log("✅ Authenticated:", isAuth);
+      } catch (error: any) {
         console.error("❌ Auth check failed:", error);
         setIsAuthenticated(false);
       }
     };
-
-    checkAuth();
+    verifyAuth();
   }, []);
 
   if (isAuthenticated === null) {
@@ -37,23 +29,3 @@ const PrivateRoute = ({ children }: { children: React.ReactElement }) => {
 };
 
 export default PrivateRoute;
-
-
-
-//local secure
-// import React from "react";
-// import { Navigate } from "react-router-dom";
-
-// const PrivateRoute = ({ children }: { children: React.ReactElement }) => {
-//   const authToken = localStorage.getItem("authToken");
-
-//   if (!authToken) {
-//     console.warn("🚫 No auth token found. Redirecting to login...");
-//     return <Navigate to="/login" />;
-//   }
-
-//   console.log("✅ Auth token found. Access granted.");
-//   return children;
-// };
-
-// export default PrivateRoute;

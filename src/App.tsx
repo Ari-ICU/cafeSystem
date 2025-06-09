@@ -16,11 +16,10 @@ function App() {
   return (
     <Router>
       <div className="flex">
-        <div className="flex-grow p-4">
+        <div className="flex-grow py-4">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginForm />} />
-            <Route path="/contact" element={<Contact />} />
 
             {/* Protected Routes */}
             <Route

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Drawer,
   List,
@@ -13,49 +13,80 @@ import {
 import {
   Menu as MenuIcon,
   Home as HomeIcon,
-  ContactMail as ContactIcon,
-  MenuOpen as MenuOpen,
+  MenuOpen as MenuOpenIcon,
   Login as LoginIcon,
   Logout as LogoutIcon,
   ProductionQuantityLimits,
   Category,
 } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
+import { useNavigate, useLocation } from "react-router-dom";
+import LoginService from "../Services/LoginService";
+
+import type { ReactElement } from "react";
+
+interface MenuItem {
+  text: string;
+  icon: ReactElement;
+  path: string;
+  show?: boolean;
+}
 
 const Sidebar: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [activeItem, setActiveItem] = useState<string | null>(null);
-  const [showLogin, setShowLogin] = useState(false);
+  const [isAuthenticatedState, setIsAuthenticatedState] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const authStatus = await LoginService.isAuthenticated();
+        setIsAuthenticatedState(authStatus);
+      } catch (error) {
+        console.error("Error checking authentication status:", error);
+        setIsAuthenticatedState(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  useEffect(() => {
+    const currentItem = menuItems.find((item) => item.path === location.pathname);
+    setActiveItem(currentItem?.text || null);
+  }, [location.pathname]);
 
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
-  const handleItemClick = (item: { text: string; path: string }) => {
+  const handleItemClick = async (item: MenuItem) => {
     console.log(`Clicked on: ${item.text}`);
     setActiveItem(item.text);
 
-    // Handle login/logout logic
     if (item.text === "Login") {
-      setShowLogin(true);
+      navigate("/login");
     } else if (item.text === "Logout") {
-      setShowLogin(false);
+      try {
+        await LoginService.logout();
+        setIsAuthenticatedState(false);
+        navigate("/");
+      } catch (error) {
+        console.error("Logout failed:", error);
+      }
+    } else {
+      navigate(item.path);
     }
 
-    // Navigate to the corresponding path
-    navigate(item.path);
-    // Close the drawer after clicking an item
     setOpen(false);
   };
 
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     { text: "Home", icon: <HomeIcon />, path: "/" },
     { text: "Product", icon: <ProductionQuantityLimits />, path: "/product" },
     { text: "Category", icon: <Category />, path: "/category" },
-    { text: "Contact", icon: <ContactIcon />, path: "/contact" },
-    { text: "Login", icon: <LoginIcon />, path: "/login", show: !showLogin },
-    { text: "Logout", icon: <LogoutIcon />, path: "/", show: showLogin },
+    { text: "Login", icon: <LoginIcon />, path: "/login", show: !isAuthenticatedState },
+    { text: "Logout", icon: <LogoutIcon />, path: "/", show: isAuthenticatedState },
   ];
 
   const drawerContent = (
@@ -64,34 +95,14 @@ const Sidebar: React.FC = () => {
         Aside
       </Typography>
       <List className="flex-grow">
-        {menuItems.slice(0, 4).map((item, index) => (
-          <ListItem key={index} disablePadding className="relative">
-            <ListItemButton
-              onClick={() => handleItemClick(item)}
-              className={`${activeItem === item.text ? "" : ""}`}
-            >
-              <ListItemIcon style={{ color: "black" }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.text} />
-              {activeItem === item.text && (
-                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full"></span>
-              )}
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-      <List>
-        {menuItems
-          .slice(3)
-          .filter((item) => item.show) // only show items where `show === true`
-          .map((item, index) => (
-            <ListItem key={index + 3} disablePadding className="relative">
+        {menuItems.map((item, index) =>
+          (item.show === undefined || item.show) ? (
+            <ListItem key={index} disablePadding className="relative">
               <ListItemButton
                 onClick={() => handleItemClick(item)}
-                className={`${activeItem === item.text ? "" : ""}`}
+                className={activeItem === item.text ? "bg-blue-100 text-black" : ""}
               >
-                <ListItemIcon style={{ color: "black" }}>
+                <ListItemIcon style={{ color: activeItem === item.text ? "black" : "black" }}>
                   {item.icon}
                 </ListItemIcon>
                 <ListItemText primary={item.text} />
@@ -100,54 +111,43 @@ const Sidebar: React.FC = () => {
                 )}
               </ListItemButton>
             </ListItem>
-          ))}
+          ) : null
+        )}
       </List>
     </Box>
   );
 
   return (
-    <Box className="flex" >
-      {/* Mobile: Show toggle button and temporary drawer */}
-      <div className="md:hidden flex items-center justify-between w-full">
+    <Box className="flex">
+      <div className="md:hidden flex items-center justify-between w-full p-4">
         <Typography variant="h6" className="font-bold">
           Aside
         </Typography>
         <IconButton
-          className="m-2 bg-gray-800 hover:bg-gray-900 transition-colors duration-200"
           onClick={toggleDrawer}
-          aria-label={
-            open ? "Close navigation drawer" : "Open navigation drawer"
-          }
+          aria-label={open ? "Close navigation drawer" : "Open navigation drawer"}
           style={{ backgroundColor: "rgb(0, 244, 255)" }}
+          size="large"
         >
-          {open ? (
-            <MenuOpen style={{ color: "black" }} />
-          ) : (
-            <MenuIcon style={{ color: "black" }} />
-          )}
+          {open ? <MenuOpenIcon style={{ color: "black" }} /> : <MenuIcon style={{ color: "black" }} />}
         </IconButton>
       </div>
+
       <Drawer
         variant="temporary"
         open={open}
         onClose={toggleDrawer}
-        className="md:hidden w-64"
-        classes={{
-          paper: "w-64 bg-gray-800 text-white",
-        }}
+        className="md:hidden"
+        classes={{ paper: "w-64 bg-gray-800 text-white" }}
       >
         {drawerContent}
       </Drawer>
 
-      {/* Desktop: Permanent sidebar */}
       <div className="hidden md:block w-72">
         <Drawer
           variant="permanent"
           open
-          className="w-72"
-          classes={{
-            paper: "w-72 bg-gray-800 text-white",
-          }}
+          classes={{ paper: "w-72 bg-gray-800 text-white" }}
         >
           {drawerContent}
         </Drawer>

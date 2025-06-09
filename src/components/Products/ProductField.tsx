@@ -11,17 +11,14 @@ import {
   InputLabel,
   CircularProgress,
   Alert,
+  Skeleton,
 } from "@mui/material";
 import UploadIcon from "@mui/icons-material/Upload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Aside from "../Aside";
 import Footer from "../../pages/Footer";
-import {
-  getProducts,
-  addProduct,
-  updateProduct,
-} from "../../Services/ProductService";
-import { getCategories } from "../../Services/CategoriesService";
+import ProductService from "../../Services/ProductService";
+import CategoriesService from "../../Services/CategoriesService";
 
 interface Category {
   id: number;
@@ -36,6 +33,17 @@ interface Product {
   is_available: boolean;
   category_id: number | null;
   image?: File | null;
+  image_url?: string;
+}
+
+interface ProductData {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  is_available: boolean;
+  category_id: number | null;
   image_url?: string;
 }
 
@@ -56,6 +64,7 @@ const ProductField: React.FC = () => {
   });
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -64,25 +73,20 @@ const ProductField: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const categoryRes = await getCategories();
-        setCategories((categoryRes as { data: Category[] }).data);
+        const categoryRes = await CategoriesService.getCategories();
+        console.log("Category response:", categoryRes); // Debug log
+        const categoryData = Array.isArray(categoryRes.data)
+          ? categoryRes.data
+          : Array.isArray(categoryRes)
+          ? categoryRes
+          : [];
+        console.log("Processed categories:", categoryData); // Debug log
+        setCategories(categoryData);
 
         if (isEditMode) {
-          const productRes = await getProducts();
-          interface ProductData {
-            id: number;
-            name: string;
-            description: string;
-            price: number;
-            stock: number;
-            is_available: boolean;
-            category_id: number | null;
-            image_url?: string;
-          }
-          const typedProductRes = productRes as { data: ProductData[] };
-          const productData = typedProductRes.data.find(
-            (p: ProductData) => p.id === Number(id)
-          );
+          const productRes = await ProductService.getProductById(Number(id));
+          console.log("Product response:", productRes); // Debug log
+          const productData = productRes.data;
           if (!productData) throw new Error("Product not found");
 
           setProduct({
@@ -99,11 +103,13 @@ const ProductField: React.FC = () => {
           });
           setImagePreview(productData.image_url || null);
         }
-      } catch {
+      } catch (err: any) {
+        console.error("Fetch error:", err);
         setError(
-          isEditMode
-            ? "Failed to load product or categories."
-            : "Failed to load categories."
+          err.message ||
+            (isEditMode
+              ? "Failed to load product or categories."
+              : "Failed to load categories.")
         );
       } finally {
         setLoading(false);
@@ -112,6 +118,14 @@ const ProductField: React.FC = () => {
 
     fetchData();
   }, [id, isEditMode]);
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -156,15 +170,22 @@ const ProductField: React.FC = () => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+    setSubmitting(true);
 
     const errors = [];
     if (!product.name.trim()) errors.push("Product name is required");
+    if (product.name.length > 100)
+      errors.push("Product name must be under 100 characters");
+    if (!/^\d+(\.\d{1,2})?$/.test(product.price.toString())) {
+      errors.push("Price must be a valid number with up to 2 decimal places");
+    }
     if (product.price <= 0) errors.push("Price must be positive");
     if (product.stock < 0) errors.push("Stock must be non-negative");
     if (!product.category_id) errors.push("Category is required");
 
     if (errors.length > 0) {
       setError(errors.join(", "));
+      setSubmitting(false);
       return;
     }
 
@@ -178,18 +199,16 @@ const ProductField: React.FC = () => {
 
     if (product.image instanceof File) {
       payload.append("image", product.image);
-    } else if (isEditMode && product.image_url && !imagePreview) {
-      payload.append("image", ""); // clear image if deleted
-    }else{
+    } else if (isEditMode && !imagePreview && product.image_url) {
       payload.append("image_deleted", "1");
     }
 
     try {
       if (isEditMode) {
-        await updateProduct(Number(id), payload);
+        await ProductService.updateProduct(Number(id), payload);
         setSuccess("Product updated successfully");
       } else {
-        await addProduct(payload);
+        await ProductService.addProduct(payload);
         setSuccess("Product added successfully");
         setProduct({
           name: "",
@@ -204,34 +223,21 @@ const ProductField: React.FC = () => {
         setImagePreview(null);
       }
       setTimeout(() => navigate("/product"), 2000);
-    } catch (error: unknown) {
-      if (
-        error &&
-        typeof error === "object" &&
-        "response" in error &&
-        error.response &&
-        typeof error.response === "object" &&
-        "data" in error.response
-      ) {
-        setError(
-          (error as { response: { data: string } }).response.data ||
-            (isEditMode
-              ? "Failed to update product."
-              : "Failed to add product.")
-        );
-      } else {
-        setError(
-          isEditMode ? "Failed to update product." : "Failed to add product."
-        );
-      }
+    } catch (error: any) {
+      setError(
+        error.message ||
+          (isEditMode ? "Failed to update product." : "Failed to add product.")
+      );
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="md:flex " id="main-wrapper">
+    <div className="md:flex" id="main-wrapper">
       <Aside />
-      <div className="flex flex-col flex-grow w-full ">
-        <Box display="flex" justifyContent="space-between" py={2}>
+      <div className="flex flex-col flex-grow w-full">
+        <Box display="flex" px={2} justifyContent="space-between" py={2}>
           <Button
             variant="outlined"
             color="inherit"
@@ -245,12 +251,19 @@ const ProductField: React.FC = () => {
             color="primary"
             type="submit"
             form="product-form"
+            disabled={submitting}
             sx={{
               backgroundColor: "#032f5b",
               "&:hover": { backgroundColor: "#021f3c" },
             }}
           >
-            {isEditMode ? "Update Product" : "Save Product"}
+            {submitting ? (
+              <CircularProgress size={24} />
+            ) : isEditMode ? (
+              "Update Product"
+            ) : (
+              "Save Product"
+            )}
           </Button>
         </Box>
 
@@ -266,11 +279,13 @@ const ProductField: React.FC = () => {
         )}
 
         {loading ? (
-          <Box display="flex" justifyContent="center" my={4}>
-            <CircularProgress />
+          <Box>
+            <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
+            <Skeleton variant="rectangular" height={50} sx={{ mb: 2 }} />
+            <Skeleton variant="rectangular" height={200} />
           </Box>
         ) : (
-          <div className="py-4">
+          <div className="p-4">
             <Typography
               variant="h4"
               gutterBottom
@@ -289,6 +304,7 @@ const ProductField: React.FC = () => {
                       value={product.name}
                       onChange={handleChange}
                       required
+                      inputProps={{ maxLength: 100 }}
                     />
                   </div>
                   <div className="w-full md:w-1/2 lg:w-1/3">
@@ -324,13 +340,14 @@ const ProductField: React.FC = () => {
                     <div className="relative w-full h-52">
                       <img
                         src={imagePreview}
-                        alt="Preview"
+                        alt="Product preview"
                         className="w-full h-full object-contain rounded"
                       />
                       <div className="image-overlay flex gap-4 justify-center mt-2">
                         <label
                           htmlFor="image-upload"
                           className="cursor-pointer text-black hover:text-green-600"
+                          aria-label="Upload new image"
                         >
                           <UploadIcon style={{ fontSize: 28 }} />
                         </label>
@@ -341,6 +358,7 @@ const ProductField: React.FC = () => {
                           accept="image/*"
                           hidden
                           onChange={handleChange}
+                          aria-label="Select image file"
                         />
                         <button
                           type="button"
@@ -354,6 +372,7 @@ const ProductField: React.FC = () => {
                             }));
                           }}
                           className="text-black hover:text-red-500"
+                          aria-label="Delete image"
                         >
                           <DeleteIcon style={{ fontSize: 28 }} />
                         </button>
@@ -367,6 +386,7 @@ const ProductField: React.FC = () => {
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -399,6 +419,7 @@ const ProductField: React.FC = () => {
                           accept="image/*"
                           hidden
                           onChange={handleChange}
+                          aria-label="Select image file"
                         />
                       </Button>
                     </>
@@ -425,25 +446,52 @@ const ProductField: React.FC = () => {
                       <InputLabel>Category</InputLabel>
                       <Select
                         name="category_id"
-                        value={product.category_id || ""}
+                        value={
+                          product.category_id !== null
+                            ? String(product.category_id)
+                            : ""
+                        }
                         label="Category"
-                        onChange={(event) => {
+                        onChange={(e) => {
                           const value =
-                            String(event.target.value) === ""
+                            e.target.value === ""
                               ? null
-                              : Number(event.target.value);
+                              : Number(e.target.value);
+                          console.log("Selected category_id:", value); // Debug log
                           setProduct((prev) => ({
                             ...prev,
                             category_id: value,
                           }));
                         }}
                         required
+                        disabled={
+                          !(
+                            categories &&
+                            Array.isArray(categories) &&
+                            categories.length > 0
+                          )
+                        }
                       >
-                        {categories.map((cat) => (
-                          <MenuItem key={cat.id} value={cat.id}>
-                            {cat.name}
+                        {!(
+                          categories &&
+                          Array.isArray(categories) &&
+                          categories.length > 0
+                        ) ? (
+                          <MenuItem value="" disabled>
+                            No categories available
                           </MenuItem>
-                        ))}
+                        ) : (
+                          [
+                            <MenuItem key="select" value="">
+                              Select a category
+                            </MenuItem>,
+                            ...categories.map((cat) => (
+                              <MenuItem key={cat.id} value={String(cat.id)}>
+                                {cat.name}
+                              </MenuItem>
+                            )),
+                          ]
+                        )}
                       </Select>
                     </FormControl>
                   </div>

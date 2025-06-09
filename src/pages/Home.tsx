@@ -5,7 +5,7 @@ const Home = () => {
   return (
     <div id="main-wrapper" className=" md:flex">
       <Aside />
-      <div className=" w-full page-wrapper overflow-hidden">
+      <div className=" w-full  page-wrapper overflow-hidden">
         <div className="container-fluid">
           <div className="row">
             <div className="col-12">

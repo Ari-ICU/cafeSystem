@@ -36,7 +36,7 @@ const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042"];
 const Charts: React.FC = () => {
   return (
     <div className=" space-y-10">
-      <h1 className="text-2xl font-bold">📊 Charts</h1>
+      <h1 className="text-2xl font-bold p-4">📊 Charts</h1>
 
       {/* Line Chart */}
       <div className="bg-white rounded-xl shadow p-4">

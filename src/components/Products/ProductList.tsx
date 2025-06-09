@@ -23,8 +23,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import Aside from "../Aside";
 import { Footer } from "../../pages/Footer";
-import { getProducts, deleteProduct } from "../../Services/ProductService";
-import { getCategories } from "../../Services/CategoriesService";
+import ProductService from "../../Services/ProductService";
+import CategoriesService from "../../Services/CategoriesService";
 
 interface Product {
   id: number;
@@ -55,31 +55,43 @@ const ProductList: React.FC = () => {
     const fetchProductsAndCategories = async () => {
       try {
         setLoading(true);
-        const [productRes, categoryRes] = (await Promise.all([
-          getProducts(),
-          getCategories(),
-        ])) as [{ data: Product[] }, { data: Category[] }];
-
-        if (
-          typeof productRes === "object" &&
-          productRes !== null &&
-          "data" in productRes &&
-          Array.isArray(productRes.data)
-        ) {
-          const formattedProducts = productRes.data.map((product) => ({
-            ...product,
-            category_id: product.category_id
-              ? Number(product.category_id)
-              : null,
-          }));
-          setProducts(formattedProducts);
-          setCategories(categoryRes.data);
-        } else {
-          throw new Error("Invalid product response format");
+        const token = localStorage.getItem("auth_token");
+        if (!token) {
+          throw new Error("No auth token found. Please log in.");
         }
-      } catch (error) {
+
+        const [productRes, categoryRes] = await Promise.all([
+          ProductService.getProducts(),
+          CategoriesService.getCategories(),
+        ]);
+
+        console.log("Category response:", categoryRes); // Debug log
+        const productData = Array.isArray(productRes.data) ? productRes.data : [];
+        const categoryData = Array.isArray(categoryRes.data)
+          ? categoryRes.data
+          : Array.isArray(categoryRes)
+          ? categoryRes
+          : [];
+
+        console.log("Processed categories:", categoryData); // Debug log
+
+        if (productData.length === 0) {
+          setError("No products found.");
+        }
+
+        setProducts(
+          productData.map((product) => ({
+            ...product,
+            category_id: product.category_id ? Number(product.category_id) : null,
+          }))
+        );
+        setCategories(categoryData);
+      } catch (error: any) {
         console.error("Error fetching data:", error);
-        setError("Failed to load products or categories. Please try again.");
+        setError(
+          error.message ||
+            "Failed to load products or categories. Please check your authentication."
+        );
       } finally {
         setLoading(false);
       }
@@ -91,12 +103,12 @@ const ProductList: React.FC = () => {
   const handleDelete = async (productId: number) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
-        await deleteProduct(productId);
+        await ProductService.deleteProduct(productId);
         setProducts(products.filter((product) => product.id !== productId));
         setError(null);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error deleting product:", error);
-        setError("Failed to delete product. Please try again.");
+        setError(error.message || "Failed to delete product.");
       }
     }
   };
@@ -109,15 +121,12 @@ const ProductList: React.FC = () => {
     .filter((product) => {
       const matchesSearch =
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase());
-
-      const categoryName =
-        product.category_id !== null
-          ? categories.find((cat) => cat.id === product.category_id)?.name || ""
-          : "";
+        product.description?.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesCategory =
-        selectedCategory === "All" || categoryName === selectedCategory;
+        selectedCategory === "All" ||
+        (product.category_id !== null &&
+          categories.find((cat) => cat.id === product.category_id)?.name === selectedCategory);
 
       return matchesSearch && matchesCategory;
     })
@@ -135,10 +144,7 @@ const ProductList: React.FC = () => {
         <div className="py-4 px-4 sm:px-6">
           <Box sx={{ display: "flex", flexDirection: "column" }}>
             <Box className="mb-6 flex flex-row justify-between items-start sm:items-center gap-4">
-              <Typography
-                variant="h5"
-                className="font-semibold text-black"
-              >
+              <Typography variant="h5" className="font-semibold text-black">
                 Product List
               </Typography>
               <Button
@@ -179,16 +185,23 @@ const ProductList: React.FC = () => {
                     <Select
                       labelId="category-select-label"
                       value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      onChange={(e) => {
+                        console.log("Selected category:", e.target.value); // Debug log
+                        setSelectedCategory(e.target.value);
+                      }}
                       label="Category"
                       aria-label="Filter by category"
                     >
-                      <MenuItem value="All">All</MenuItem>
-                      {categories.map((category) => (
-                        <MenuItem key={category.id} value={category.name}>
-                          {category.name}
-                        </MenuItem>
-                      ))}
+                      {[
+                        <MenuItem key="all" value="All">
+                          All
+                        </MenuItem>,
+                        ...categories.map((category) => (
+                          <MenuItem key={category.id} value={category.name}>
+                            {category.name}
+                          </MenuItem>
+                        )),
+                      ]}
                     </Select>
                   </FormControl>
                 </Box>
@@ -259,9 +272,9 @@ const ProductList: React.FC = () => {
                               <TableRow key={product.id} hover>
                                 <TableCell>{index + 1}</TableCell>
                                 <TableCell>
-                                  {product.image ? (
+                                  {product.image_url ? (
                                     <img
-                                      src={`${product.image_url}`}
+                                      src={product.image_url}
                                       alt={product.name}
                                       style={{
                                         width: "50px",
@@ -270,8 +283,7 @@ const ProductList: React.FC = () => {
                                         objectFit: "cover",
                                       }}
                                       onError={(e) => {
-                                        e.currentTarget.src =
-                                          "/fallback-image.jpg";
+                                        e.currentTarget.src = "/fallback-image.jpg";
                                       }}
                                     />
                                   ) : (
@@ -347,14 +359,14 @@ const ProductList: React.FC = () => {
                           key={product.id}
                           sx={{ mb: 2, border: "1px solid #e0e0e0" }}
                         >
-                          <CardContent className=" ">
+                          <CardContent>
                             <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                              {product.image ? (
+                              {product.image_url ? (
                                 <img
-                                  src={`${product.image_url}`}
+                                  src={product.image_url}
                                   alt={product.name}
-                                  className="w-full"
                                   style={{
+                                    width: "100%",
                                     height: "200px",
                                     borderRadius: "4px",
                                     objectFit: "cover",
@@ -367,19 +379,18 @@ const ProductList: React.FC = () => {
                               ) : (
                                 <Typography sx={{ mr: 1 }}>No Image</Typography>
                               )}
-                             
                             </Box>
-                             <Typography variant="h5">{product.name}</Typography>
-                            <Typography variant="body1" color="text.secondary">
+                            <Typography variant="h6">{product.name}</Typography>
+                            <Typography variant="body2" color="text.secondary">
                               {product.description}
                             </Typography>
-                            <Typography variant="body1" sx={{ mt: 1 }}>
+                            <Typography variant="body2" sx={{ mt: 1 }}>
                               Price: ${product.price}
                             </Typography>
-                            <Typography variant="body1">
+                            <Typography variant="body2">
                               Stock: {product.stock}
                             </Typography>
-                            <Typography variant="body1">
+                            <Typography variant="body2">
                               Category:{" "}
                               {categories.length === 0
                                 ? `No categories loaded (category_id: ${product.category_id})`
@@ -417,7 +428,7 @@ const ProductList: React.FC = () => {
             )}
           </Box>
         </div>
-        <Box className="">
+        <Box>
           <Footer />
         </Box>
       </div>

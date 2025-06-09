@@ -1,23 +1,121 @@
-// src/services/productService.ts
 import axios from "axios";
 import ApiConfig from "../Configs/ApiConfig";
 
-export const getCategories = async () => {
-  const response = await axios.get(ApiConfig.CATEGORIES);
-  return response.data;
+// Axios interceptor to include Authorization header
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("auth_token");
+    if (token) {
+      config.headers = {
+        ...config.headers,
+        Authorization: `Bearer ${token}`,
+      };
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+const CategoriesService = {
+  // GET /categories
+  getCategories: async () => {
+    try {
+      const response = await axios.get(ApiConfig.CATEGORIES, {
+        headers: {
+          Accept: "application/json",
+        },
+      });
+      const data = response.data as any;
+      return data.data || data;
+    } catch (error: any) {
+      console.error("Error fetching categories:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to load categories."
+      );
+    }
+  },
+  // GET /categories/:id
+  getCategory: async (categoryId: number) => {
+    try {
+      const response = await axios.get(
+        `${ApiConfig.CATEGORIES}/${categoryId}`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
+      const data = response.data as any;
+      return data.data || data;
+    } catch (error: any) {
+      console.error("Error fetching category:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to load category."
+      );
+    }
+  },
+
+  // POST /categories
+  addCategory: async (payload: FormData) => {
+    try {
+      const response = await axios.post(ApiConfig.CATEGORIES, payload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Accept: "application/json",
+        },
+      });
+      const data = response.data as any;
+      return data.data || data;
+    } catch (error: any) {
+      console.error("Error adding category:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to add category."
+      );
+    }
+  },
+
+  // PUT /categories/:id
+  updateCategory: async (categoryId: number, payload: FormData) => {
+    try {
+      const response = await axios.post(
+        `${ApiConfig.CATEGORIES}/${categoryId}`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Accept: "application/json",
+          },
+        }
+      );
+      const data = response.data as any;
+      return data.data || data;
+    } catch (error: any) {
+      console.error("Error updating category:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to update category."
+      );
+    }
+  },
+
+  // DELETE /categories/:id
+  deleteCategory: async (categoryId: number) => {
+    try {
+      const response = await axios.post(
+        `${ApiConfig.CATEGORIES}/${categoryId}/delete`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
+      return response.data.data || response.data;
+    } catch (error: any) {
+      console.error("Error deleting category:", error);
+      throw new Error(
+        error.response?.data?.message || "Failed to delete category."
+      );
+    }
+  },
 };
 
-export const addCategory = async (payload: FormData) =>{
-  const response = await axios.post(ApiConfig.CATEGORIES, payload)
-  return response;
-}
-
-export const updateCategory = async (categoryId: number, payload: FormData) => {
-  const response = await axios.post(`${ApiConfig.CATEGORIES}/${categoryId}`, payload);
-  return response.data;
-};
-
-export const deleteCategory = async (categoryId: number) => {
-  const response = await axios.post(`${ApiConfig.CATEGORIES}/${categoryId}/delete`);
-  return response.data;
-};
+export default CategoriesService;
