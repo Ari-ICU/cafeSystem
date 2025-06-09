@@ -9,7 +9,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   TextField,
   CircularProgress,
   Card,
@@ -164,7 +163,7 @@ const CategoryList: React.FC = () => {
             </CardContent>
           </Card>
         ) : (
-          <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
+          <TableContainer sx={{ maxHeight: 600 }}>
             <Table stickyHeader aria-label="category table">
               <TableHead>
                 <TableRow sx={{ bgcolor: "#032f5b" }}>

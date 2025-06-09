@@ -8,7 +8,7 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-import Aside from "../Aside"; // Adjust path as needed
+import Aside from "../Aside"; 
 import Footer from "../../pages/Footer"; // Adjust path as needed
 import CategoriesService from "../../Services/CategoriesService";
 

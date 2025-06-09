@@ -9,7 +9,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   TextField,
   MenuItem,
   Select,
@@ -209,7 +208,6 @@ const ProductList: React.FC = () => {
                   {/* Desktop Table */}
                   <Box sx={{ display: { xs: "none", sm: "block" } }}>
                     <TableContainer
-                      component={Paper}
                       sx={{
                         maxHeight: 600,
                         "&::-webkit-scrollbar": { height: "8px", width: "8px" },
