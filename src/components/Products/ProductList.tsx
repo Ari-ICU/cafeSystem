@@ -135,7 +135,7 @@ const ProductList: React.FC = () => {
     <div className="md:flex" id="product-wrapper">
       <Aside />
       <div className="w-full page-wrapper overflow-hidden">
-        <Box className="text-black py-4">
+        <Box className="text-black py-4 px-2">
           <Typography variant="h4" className="font-bold">
             Product Management
           </Typography>
