@@ -13,8 +13,9 @@ const refreshToken = async () => {
         Authorization: `Bearer ${authToken}`,
       },
     });
-    const newToken = response.data.data.token;
-    setAuthToken(newToken);
+    const data = response.data as { data: { token: string } };
+    const newToken = data.data.token;
+    authToken = newToken;
     return newToken;
   } catch (error) {
     console.error("Refresh token error:", error);

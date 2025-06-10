@@ -213,7 +213,8 @@ const refreshToken = async () => {
         Authorization: `Bearer ${authToken}`,
       },
     });
-    const newToken = response.data.data.token;
+    const data = response.data as { data: { token: string } };
+    const newToken = data.data.token;
     setAuthToken(newToken);
     return newToken;
   } catch (error) {

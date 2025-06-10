@@ -1,8 +1,6 @@
 
 import { Box, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 export const Footer = () => {
-    const navigate = useNavigate();
   return (
 
     <div>
