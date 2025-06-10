@@ -11,13 +11,6 @@ export const Footer = () => {
             <Typography variant="body2" className="text-gray-400">
               © {new Date().getFullYear()} Your Company. All rights reserved.
             </Typography>
-            <Typography
-              variant="body2"
-              className="text-blue-500 cursor-pointer hover:underline"
-              onClick={() => navigate("/contact")}
-            >
-              Contact Us
-            </Typography>
           </Box>
     </div>
   )

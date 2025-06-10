@@ -10,6 +10,8 @@ const ApiConfig = {
   LOGOUT: `${BASE_URL}/logout`,
   RELOAD_CAPTCHA: `${BASE_URL}/captcha`, 
   CHECK_AUTH: `${BASE_URL}/me`,
+  REFRESH_TOKEN: `${BASE_URL}/refresh`,
+
 };
 
 export default ApiConfig;

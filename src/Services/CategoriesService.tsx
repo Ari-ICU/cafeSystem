@@ -1,13 +1,21 @@
 import axios from "axios";
 import ApiConfig from "../Configs/ApiConfig";
 
+// In-memory token (shared with LoginService)
+let authToken: string | null = null;
+
+// Export setter for LoginService to update token
+export const setAuthToken = (token: string | null) => {
+  authToken = token;
+};
+
+// Axios interceptor to add Authorization header
 axios.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("auth_token");
-    if (token) {
+    if (authToken) {
       config.headers = {
         ...config.headers,
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${authToken}`,
       };
     }
     return config;
@@ -24,33 +32,30 @@ const CategoriesService = {
           Accept: "application/json",
         },
       });
-      const data = response.data as any;
+      const data = response.data as { data?: any };
       return data.data || data;
     } catch (error: any) {
       console.error("Error fetching categories:", error);
       throw new Error(
-        error.response?.data?.message || "Category endpoint not found. Please check the API URL."
+        error.response?.data?.message || "Failed to fetch categories. Please check the API URL."
       );
     }
-    
   },
+
   // GET /categories/:id
   getCategory: async (categoryId: number) => {
     try {
-      const response = await axios.get(
-        `${ApiConfig.CATEGORIES}/${categoryId}`,
-        {
-          headers: {
-            Accept: "application/json",
-          },
-        }
-      );
-      const data = response.data as any;
+      const response = await axios.get(`${ApiConfig.CATEGORIES}/${categoryId}`, {
+        headers: {
+          Accept: "application/json",
+        },
+      });
+      const data = response.data as { data?: any };
       return data.data || data;
     } catch (error: any) {
-      console.error("Error fetching categories:", error);
+      console.error("Error fetching category:", error);
       throw new Error(
-        error.response?.data?.message || "Category endpoint not found. Please check the API URL."
+        error.response?.data?.message || "Failed to fetch category. Please check the API URL."
       );
     }
   },
@@ -64,7 +69,7 @@ const CategoriesService = {
           Accept: "application/json",
         },
       });
-      const data = response.data as any;
+      const data = response.data as { data?: any };
       return data.data || data;
     } catch (error: any) {
       console.error("Error adding category:", error);
@@ -87,7 +92,7 @@ const CategoriesService = {
           },
         }
       );
-      const data = response.data as any;
+      const data = response.data as { data?: any };
       return data.data || data;
     } catch (error: any) {
       console.error("Error updating category:", error);
@@ -100,15 +105,12 @@ const CategoriesService = {
   // DELETE /categories/:id
   deleteCategory: async (categoryId: number) => {
     try {
-      const response = await axios.post(
-        `${ApiConfig.CATEGORIES}/${categoryId}/delete`,
-        {
-          headers: {
-            Accept: "application/json",
-          },
-        }
-      );
-      const data = response.data as any;
+      const response = await axios.post(`${ApiConfig.CATEGORIES}/${categoryId}/delete`, {
+        headers: {
+          Accept: "application/json",
+        },
+      });
+      const data = response.data as { data?: any };
       return data.data || data;
     } catch (error: any) {
       console.error("Error deleting category:", error);

@@ -24,6 +24,7 @@ import Aside from "../Aside";
 import { Footer } from "../../pages/Footer";
 import ProductService from "../../Services/ProductService";
 import CategoriesService from "../../Services/CategoriesService";
+import LoginService from "../../Services/LoginService";
 
 interface Product {
   id: number;
@@ -54,9 +55,13 @@ const ProductList: React.FC = () => {
     const fetchProductsAndCategories = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("auth_token");
-        if (!token) {
-          throw new Error("No auth token found. Please log in.");
+
+        // Check authentication
+        const isAuthenticated = await LoginService.isAuthenticated();
+        if (!isAuthenticated) {
+          setError("You are not authenticated. Redirecting to login...");
+          setTimeout(() => navigate("/login"), 2000);
+          return;
         }
 
         const [productRes, categoryRes] = await Promise.all([
@@ -87,17 +92,22 @@ const ProductList: React.FC = () => {
         setCategories(categoryData);
       } catch (error: any) {
         console.error("Error fetching data:", error);
-        setError(
-          error.message ||
-            "Failed to load products or categories. Please check your authentication."
-        );
+        if (error.message.includes("Unauthorized")) {
+          setError("Session expired. Redirecting to login...");
+          setTimeout(() => navigate("/login"), 2000);
+        } else {
+          setError(
+            error.message ||
+              "Failed to load products or categories. Please try again."
+          );
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchProductsAndCategories();
-  }, []);
+  }, [navigate]);
 
   const handleDelete = async (productId: number) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
@@ -107,7 +117,12 @@ const ProductList: React.FC = () => {
         setError(null);
       } catch (error: any) {
         console.error("Error deleting product:", error);
-        setError(error.message || "Failed to delete product.");
+        if (error.message.includes("Unauthorized")) {
+          setError("Session expired. Redirecting to login...");
+          setTimeout(() => navigate("/login"), 2000);
+        } else {
+          setError(error.message || "Failed to delete product.");
+        }
       }
     }
   };
